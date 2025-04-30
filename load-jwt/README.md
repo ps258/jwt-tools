@@ -5,7 +5,7 @@ Flags are:
 
 `--cert` file containing a PEM format RSA certificate
 
-`key` file containing the PEM format private key for the certificate
+`--key` file containing the PEM format private key for the certificate
 
 `--claims` JSON file containing the claims to put into the body of the JWT
 
