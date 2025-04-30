@@ -1,0 +1,14 @@
+#!/bin/ksh
+
+# use std in if no file given
+FILE=${1:-/dev/stdin}
+if [[ $# > 0 ]]
+then
+  shift
+fi
+
+
+for file in "$FILE" "$@"
+do
+  cat "$file" | jq -R 'split(".") | .[0],.[1] | @base64d | fromjson'
+done
