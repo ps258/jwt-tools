@@ -151,6 +151,7 @@ func createJwt(certFile, keyFile, claimsFile string) string {
 		s.Set(jsonKey, jsonValue)
 	}
 
+  // this should only be done once, not during the creation of every JWT
 	privkey, err := parseRSAPrivateKeyFromFile(keyFile)
 	if err != nil {
 		log.Printf("Failed to load private key from %s: %s", keyFile, err)
