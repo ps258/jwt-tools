@@ -2,7 +2,7 @@
 
 `mk-jwt` will create a jwt based on the options given
 
-````
+```
 Usage of mk-jwt:
   -cert string
         The x509 RSA public certificate (default "cert.pem")
@@ -22,7 +22,7 @@ Usage of mk-jwt:
         The subject to put in the 'sub' claim
   -verbose
         Print more messages
-````
+```
 
 It has more options that `load-jwt` so is more flexible in the JWTs it can make
 
