@@ -11,6 +11,8 @@ Flags are:
 
 `--url` the URL of the API
 
+`--count` Number of requests to run (default 25000)
+
 ## Notes:
 These are added to the claims JSON
 
