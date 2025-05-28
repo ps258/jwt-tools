@@ -27,6 +27,29 @@ var (
 	errNotRSAPublicKey     = errors.New("Key is not a valid RSA public key")
 )
 
+// fileExists checks if a file exists and is not a directory
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
+
+// validateRequiredFiles checks that all required files exist
+func validateRequiredFiles(certFile, keyFile, claimsFile string) error {
+	if !fileExists(certFile) {
+		return fmt.Errorf("certificate file does not exist: %s", certFile)
+	}
+	if !fileExists(keyFile) {
+		return fmt.Errorf("private key file does not exist: %s", keyFile)
+	}
+	if claimsFile != "" && !fileExists(claimsFile) {
+		return fmt.Errorf("claims file does not exist: %s", claimsFile)
+	}
+	return nil
+}
+
 func parseRSAPrivateKeyFromPEM(key []byte) (*rsa.PrivateKey, error) {
 	var err error
 
@@ -151,7 +174,7 @@ func createJwt(certFile, keyFile, claimsFile string) string {
 		s.Set(jsonKey, jsonValue)
 	}
 
-  // this should only be done once, not during the creation of every JWT
+	// this should only be done once, not during the creation of every JWT
 	privkey, err := parseRSAPrivateKeyFromFile(keyFile)
 	if err != nil {
 		log.Printf("Failed to load private key from %s: %s", keyFile, err)
@@ -167,21 +190,29 @@ func createJwt(certFile, keyFile, claimsFile string) string {
 }
 
 func main() {
-	cert := flag.String("cert", "cert.pem", "The x509 RSA public certificate")
-	key := flag.String("key", "key.pem", "The RSA private key")
-	claims := flag.String("claims", "claims.json", "A file of claims in json format")
-	url := flag.String("url", "https://httpbin.org/anything/fred", "The URL to call")
-	//jwks := flag.String("jwks", "http://localhost:8080/jwks.json", "The matching JWKS to the cert and key")
+	cert := flag.String("cert", "", "The x509 RSA public certificate")
+	key := flag.String("key", "", "The RSA private key")
+	claims := flag.String("claims", "", "A file of claims in json format")
+	url := flag.String("url", "", "The URL to call")
+	count := flag.Int("count", 25000, "Number of requests to run")
 	flag.Parse()
-	fmt.Println("Here")
-	if *cert == "" || *key == "" {
-		fmt.Println("Must provide --cert, --key, --claims")
+
+	// Check that required parameters are provided
+	if *cert == "" || *key == "" || *claims == "" || *url == "" {
+		fmt.Println("Must provide --cert, --key, --claims and --url")
 		os.Exit(1)
 	}
+
+	// Validate that all required files exist
+	if err := validateRequiredFiles(*cert, *key, *claims); err != nil {
+		fmt.Printf("File validation error: %v\n", err)
+		os.Exit(1)
+	}
+
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", *url, nil)
 
-	for i := 1; i < 25000; i++ {
+	for i := 1; i <= *count; i++ {
 		jwt := createJwt(*cert, *key, *claims)
 		//fmt.Println(jwt)
 		req.Header.Set("Authorization", jwt)
