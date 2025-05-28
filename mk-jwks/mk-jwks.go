@@ -45,6 +45,21 @@ func translateSignatureAlgorithm(SigAlg string, key interface{}) string {
 }
 
 func main() {
+	// Check that at least one certificate file is provided
+	if len(os.Args) < 2 {
+		fmt.Println("[FATAL]At least one certificate file must be provided")
+		fmt.Println("Usage: mk-jwks <cert1.pem> [cert2.pem] ...")
+		os.Exit(1)
+	}
+
+	// Check that all provided certificate files exist
+	for _, certFile := range os.Args[1:] {
+		if _, err := os.Stat(certFile); os.IsNotExist(err) {
+			fmt.Println("[FATAL]Certificate file does not exist: " + certFile)
+			os.Exit(1)
+		}
+	}
+
 	var jwks jose.JSONWebKeySet
 	var jwk jose.JSONWebKey
 	for _, certFile := range os.Args[1:] {
