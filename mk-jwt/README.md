@@ -10,6 +10,10 @@ Usage of mk-jwt:
         A file of claims in json format (default "claims.json")
   -exp string
         Duration for JWT expiration (e.g., '1h', '30m', '24h')
+  -hmac
+        Use HMAC signing instead of RSA
+  -hmac-secret string
+        Secret key for HMAC signing
   -iat-offset int
         Offset for IssuedAt time in seconds (can be positive or negative)
   -key string
